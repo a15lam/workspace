@@ -1,0 +1,29 @@
+{
+  "name": "a15lam/workspace",
+  "description": "A library of commonly used classes and utilities.",
+  "homepage": "https://a15lam.github.io/workspace/",
+  "keywords": [
+    "Common",
+    "Utility",
+    "Framework"
+  ],
+  "license": [
+    "MIT"
+  ],
+  "authors": [
+    {
+      "name": "Arif Islam",
+      "email": "areef.islam@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "a15lam\\Workspace\\": "src/"
+    }
+  }
+}
