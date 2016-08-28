@@ -1,23 +1,22 @@
 <?php
 namespace a15lam\Workspace\Utility;
 
-
 class Logger
 {
     /*********************************
      * Enumerations
      *********************************/
 
-    const ERROR   = 4;
-    const WARNING = 3;
-    const INFO    = 2;
-    const DEBUG   = 1;
-    const FILE_NAME    = 'main.log';
+    const ERROR     = 4;
+    const WARNING   = 3;
+    const INFO      = 2;
+    const DEBUG     = 1;
+    const FILE_NAME = 'main.log';
 
-    /** @var null|string  */
+    /** @var null|string */
     protected $logFile = null;
-    
-    /** @var int  */
+
+    /** @var int */
     protected $logLevel = 0;
 
     /**
@@ -29,21 +28,22 @@ class Logger
 
     /**
      * Logger constructor.
-     * @param string $logPath
+     *
+     * @param string  $logPath
      * @param integer $defaultLogLevel
-     * @param string $timezone
+     * @param string  $timezone
      */
     public function __construct($logPath, $defaultLogLevel = 0, $timezone = null)
     {
-        if(is_file($logPath)){
+        if (is_file($logPath)) {
             $this->logFile = $logPath;
-        } elseif (is_dir($logPath)){
+        } elseif (is_dir($logPath)) {
             $this->logFile = rtrim($logPath, '/') . '/' . static::FILE_NAME;
         } else {
             throw new \InvalidArgumentException('Invalid log path/file provided. [' . $logPath . ']');
         }
         $this->logLevel = $defaultLogLevel;
-        if(!empty($timezone)) {
+        if (!empty($timezone)) {
             date_default_timezone_set($timezone);
         }
     }
