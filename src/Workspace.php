@@ -13,15 +13,16 @@ class Workspace
     /** @var Logger|null  */
     protected $logger = null;
 
-    public function __construct(array $config)
+    protected static $configInfo = __DIR__ . '/../config.php';
+
+    protected static $logPath = __DIR__ . '/../storage/logs/';
+
+    public function __construct(array $config = [])
     {
-        if(!isset($config['config_file'])){
-            throw new \InvalidArgumentException('No config_file provided in Workspace config.');
-        }
-        $this->setConfig($config['config_file']);
-        if(isset($config['log_path'])){
-            $this->setLogger($config['log_path']);
-        }
+        $configFile = (isset($config['config_file'])) ? $config['config_file'] : self::$configInfo;
+        $this->setConfig($configFile);
+        $logPath = (isset($config['log_path'])) ? $config['log_path'] : self::$logPath;
+        $this->setLogger($logPath);
     }
 
     /**
