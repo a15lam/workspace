@@ -53,19 +53,45 @@ class Workspace
         );
     }
 
-    /**
-     * @return \a15lam\Workspace\Utility\Config
-     */
-    public function config()
+    public function getConfig()
     {
-        return $this->config();
+        return $this->config;
+    }
+
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**
+     * @param string $file
+     * @return \a15lam\Workspace\Utility\Config
+     */
+    public static function config($file = null)
+    {
+        $config = [];
+        if(!empty($file)){
+            $config['config_file'] = $file;
+        }
+        $ws = new static($config);
+        return $ws->getConfig();
+    }
+
+    /**
+     * @param string $path
+     * @param string $configFile
      * @return \a15lam\Workspace\Utility\Logger
      */
-    public function log()
+    public static function log($path = null, $configFile = null)
     {
-        return $this->logger;
+        $config = [];
+        if(!empty($configFile)){
+            $config['config_file'] = $configFile;
+        }
+        if(!empty($path)){
+            $config['log_path'] = $path;
+        }
+        $ws = new static($config);
+        return $ws->getLogger();
     }
 }
