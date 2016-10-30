@@ -19,9 +19,9 @@ class Workspace
 
     public function __construct(array $config = [])
     {
-        $configFile = (isset($config['config_file'])) ? $config['config_file'] : self::$configInfo;
+        $configFile = (isset($config['config_file'])) ? $config['config_file'] : static::$configInfo;
         $this->setConfig($configFile);
-        $logPath = (isset($config['log_path'])) ? $config['log_path'] : self::$logPath;
+        $logPath = (isset($config['log_path'])) ? $config['log_path'] : static::$logPath;
         $this->setLogger($logPath);
     }
 
