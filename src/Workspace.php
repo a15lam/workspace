@@ -8,58 +8,63 @@ use a15lam\Workspace\Utility\Logger;
 class Workspace
 {
     /** @var Config|null  */
-    protected static $config = null;
+    protected $config = null;
 
     /** @var Logger|null  */
-    protected static $logger = null;
+    protected $logger = null;
 
-    /** @var string  */
-    protected static $configInfo = __DIR__ . '/../config.php';
-
-    /** @var string  */
-    protected static $logPath = __DIR__ . '/../storage/logs/';
+    public function __construct(array $config)
+    {
+        if(!isset($config['config_file'])){
+            throw new \InvalidArgumentException('No config_file provided in Workspace config.');
+        }
+        $this->setConfig($config['config_file']);
+        if(isset($config['log_path'])){
+            $this->setLogger($config['log_path']);
+        }
+    }
 
     /**
      * Sets the config class
+     *
+     * @param $file
      */
-    protected static function setConfig()
+    protected function setConfig($file)
     {
-        static::$config = new Config(static::$configInfo);
+        if(!is_file($file)) {
+            throw new \InvalidArgumentException('Config file not found in [' . $file . ']');
+        }
+        $this->config = new Config($file);
     }
 
     /**
      * Sets the logger class
      */
-    protected static function setLogger()
+    protected function setLogger($path)
     {
-        static::$logger = new Logger(
-            static::$logPath,
-            static::config()->get('log_level', Logger::WARNING),
-            static::config()->get('timezone')
+        if(!is_dir($path)){
+            throw new \InvalidArgumentException('Log path not found for [' . $path . ']');
+        }
+        $this->logger = new Logger(
+            $path,
+            $this->config->get('log_level', Logger::WARNING),
+            $this->config->get('timezone')
         );
     }
 
     /**
      * @return \a15lam\Workspace\Utility\Config
      */
-    public static function config()
+    public function config()
     {
-        if (static::$config === null) {
-            static::setConfig();
-        }
-
-        return static::$config;
+        return $this->config();
     }
 
     /**
      * @return \a15lam\Workspace\Utility\Logger
      */
-    public static function log()
+    public function log()
     {
-        if (static::$logger === null) {
-            static::setLogger();
-        }
-
-        return static::$logger;
+        return $this->logger;
     }
 }
