@@ -49,7 +49,8 @@ class Workspace
         $this->logger = new Logger(
             $path,
             $this->config->get('log_level', Logger::WARNING),
-            $this->config->get('timezone')
+            $this->config->get('timezone'),
+            $this->config->get('debug', false)
         );
     }
 
