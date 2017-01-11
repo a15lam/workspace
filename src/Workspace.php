@@ -4,6 +4,7 @@ namespace a15lam\Workspace;
 
 use a15lam\Workspace\Utility\Config;
 use a15lam\Workspace\Utility\Logger;
+use Dotenv\Dotenv;
 
 class Workspace
 {
@@ -17,12 +18,50 @@ class Workspace
 
     protected static $logPath = __DIR__ . '/../storage/logs/';
 
+    protected static $dotenvPath = __DIR__ . '/../';
+
+    protected static $dotenvLoaded = false;
+
     public function __construct(array $config = [])
     {
         $configFile = (isset($config['config_file'])) ? $config['config_file'] : static::$configInfo;
         $this->setConfig($configFile);
-        $logPath = (isset($config['log_path'])) ? $config['log_path'] : static::$logPath;
+        $defaultLogPath = $this->config->get('log_path', static::$logPath);
+        $logPath = (isset($config['log_path'])) ? $config['log_path'] : $defaultLogPath;
         $this->setLogger($logPath);
+    }
+
+    public static function setDotenv($path)
+    {
+        if(false === static::$dotenvLoaded && file_exists($path . '.env')){
+            $dotenv = new Dotenv($path);
+            $dotenv->load();
+            static::$dotenvLoaded = true;
+            static::log()->debug('Loading .env file.');
+        }
+    }
+
+    public static function env($key, $default = null)
+    {
+        static::setDotenv(static::$dotenvPath);
+        if(!static::$dotenvLoaded){
+            throw new \RuntimeException('Dotenv configs are not loaded. Failed to get value for key [' . $key .']');
+        }
+
+        $value = getenv($key);
+        if(false === $value){
+            return $default;
+        } else {
+            if($value === 'true' || $value === 'TRUE'){
+                return true;
+            } elseif ($value === 'false' || $value === 'FALSE'){
+                return false;
+            } elseif (is_numeric($value)){
+                return (1 * $value);
+            } else {
+                return $value;
+            }
+        }
     }
 
     /**
@@ -92,6 +131,7 @@ class Workspace
         if(!empty($path)){
             $config['log_path'] = $path;
         }
+
         $ws = new static($config);
         return $ws->getLogger();
     }

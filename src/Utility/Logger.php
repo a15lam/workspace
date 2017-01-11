@@ -115,6 +115,21 @@ class Logger
     }
 
     /**
+     * Gets the log level value by name
+     *
+     * @param $name
+     *
+     * @return null
+     */
+    public static function getLevelValue($name)
+    {
+        $name = strtoupper($name);
+        $map = (new \ReflectionClass(self::class))->getConstants();
+
+        return (isset($map[$name]))? $map[$name] : null;
+    }
+
+    /**
      * Logs warning messages.
      *
      * @param string $msg
