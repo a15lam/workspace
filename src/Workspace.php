@@ -79,7 +79,7 @@ class Workspace
     {
         $config = static::config();
 
-        $path = $config->get('log_path');
+        $path = static::$projectRoot . $config->get('log_path');
         if (empty($path)) {
             throw new \RuntimeException('No log_path is defined in configuration.');
         }
