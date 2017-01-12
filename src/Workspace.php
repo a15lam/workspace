@@ -8,10 +8,10 @@ use Dotenv\Dotenv;
 
 class Workspace
 {
-    /** @var Config|null  */
+    /** @var Config|null */
     protected $config = null;
 
-    /** @var Logger|null  */
+    /** @var Logger|null */
     protected $logger = null;
 
     protected static $projectRoot = __DIR__ . '/../';
@@ -25,7 +25,7 @@ class Workspace
      */
     protected static function setDotenv($path)
     {
-        if(false === static::$dotenvLoaded && file_exists($path . '.env')){
+        if (false === static::$dotenvLoaded && file_exists($path . '.env')) {
             $dotenv = new Dotenv($path);
             $dotenv->load();
             static::$dotenvLoaded = true;
@@ -42,19 +42,19 @@ class Workspace
     public static function env($key, $default = null)
     {
         static::setDotenv(static::$projectRoot);
-        if(!static::$dotenvLoaded){
-            throw new \RuntimeException('Dotenv configs are not loaded. Failed to get value for key [' . $key .']');
+        if (!static::$dotenvLoaded) {
+            throw new \RuntimeException('Dotenv configs are not loaded. Failed to get value for key [' . $key . ']');
         }
 
         $value = getenv($key);
-        if(false === $value){
+        if (false === $value) {
             return $default;
         } else {
-            if($value === 'true' || $value === 'TRUE'){
+            if ($value === 'true' || $value === 'TRUE') {
                 return true;
-            } elseif ($value === 'false' || $value === 'FALSE'){
+            } elseif ($value === 'false' || $value === 'FALSE') {
                 return false;
-            } elseif (is_numeric($value)){
+            } elseif (is_numeric($value)) {
                 return (1 * $value);
             } else {
                 return $value;
@@ -80,7 +80,7 @@ class Workspace
         $config = static::config();
 
         $path = $config->get('log_path');
-        if(empty($path)){
+        if (empty($path)) {
             throw new \RuntimeException('No log_path is defined in configuration.');
         }
         $level = $config->get('log_level', Logger::WARNING);
