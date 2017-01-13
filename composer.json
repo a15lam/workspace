@@ -19,7 +19,8 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=5.5"
+    "php": ">=5.5",
+    "vlucas/phpdotenv": "^2.4"
   },
   "autoload": {
     "psr-4": {

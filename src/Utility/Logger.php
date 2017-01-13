@@ -19,6 +19,9 @@ class Logger
     /** @var int */
     protected $logLevel = 0;
 
+    /** @var bool */
+    protected $debugOutput = false;
+
     /**
      * Set this to true to completely silence the logger
      *
@@ -32,9 +35,11 @@ class Logger
      * @param string  $logPath
      * @param integer $defaultLogLevel
      * @param string  $timezone
+     * @param bool    $debug
      */
-    public function __construct($logPath, $defaultLogLevel = 0, $timezone = null)
+    public function __construct($logPath, $defaultLogLevel = 0, $timezone = null, $debug = false)
     {
+        $this->debugOutput = $debug;
         if (is_file($logPath)) {
             $this->logFile = $logPath;
         } elseif (is_dir($logPath)) {
@@ -59,19 +64,19 @@ class Logger
      */
     protected function write($level, $msg)
     {
+        $time = date('Y-m-d H:i:s', time());
+        $msg = "[" . $time . "][" . static::getLevelName($level) . "] " . $msg . PHP_EOL;
+
+        if($this->debugOutput === true){
+            echo $msg;
+        }
         if (static::$silent) {
             return false;
         }
-
         if (!$this->isAllowed($level)) {
             return false;
         }
-
-        $time = date('Y-m-d H:i:s', time());
-
-        $msg = "[" . $time . "][" . static::getLevelName($level) . "] " . $msg . PHP_EOL;
         $fh = fopen($this->logFile, 'a');
-
         if (!fwrite($fh, $msg)) {
             throw new \Exception('Failed to write to log file at ' . $this->logFile);
         }
@@ -107,6 +112,21 @@ class Logger
         $map = array_flip((new \ReflectionClass(self::class))->getConstants());
 
         return (array_key_exists($value, $map) ? $map[$value] : null);
+    }
+
+    /**
+     * Gets the log level value by name
+     *
+     * @param $name
+     *
+     * @return null
+     */
+    public static function getLevelValue($name)
+    {
+        $name = strtoupper($name);
+        $map = (new \ReflectionClass(self::class))->getConstants();
+
+        return (isset($map[$name]))? $map[$name] : null;
     }
 
     /**

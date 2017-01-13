@@ -4,94 +4,83 @@ namespace a15lam\Workspace;
 
 use a15lam\Workspace\Utility\Config;
 use a15lam\Workspace\Utility\Logger;
+use Dotenv\Dotenv;
 
 class Workspace
 {
-    /** @var Config|null  */
-    protected $config = null;
+    protected static $projectRoot = __DIR__ . '/../';
 
-    /** @var Logger|null  */
-    protected $logger = null;
+    protected static $configFile = 'config.php';
 
-    protected static $configInfo = __DIR__ . '/../config.php';
+    protected static $dotenvLoaded = false;
 
-    protected static $logPath = __DIR__ . '/../storage/logs/';
-
-    public function __construct(array $config = [])
+    /**
+     * @param $path
+     */
+    protected static function setDotenv($path)
     {
-        $configFile = (isset($config['config_file'])) ? $config['config_file'] : static::$configInfo;
-        $this->setConfig($configFile);
-        $logPath = (isset($config['log_path'])) ? $config['log_path'] : static::$logPath;
-        $this->setLogger($logPath);
+        if (false === static::$dotenvLoaded && file_exists($path . '.env')) {
+            $dotenv = new Dotenv($path);
+            $dotenv->load();
+            static::$dotenvLoaded = true;
+            static::log()->debug('Loading .env file.');
+        }
     }
 
     /**
-     * Sets the config class
+     * @param      $key
+     * @param null $default
      *
-     * @param $file
+     * @return array|bool|false|int|null|string
      */
-    protected function setConfig($file)
+    public static function env($key, $default = null)
     {
-        if(!is_file($file)) {
-            throw new \InvalidArgumentException('Config file not found in [' . $file . ']');
+        static::setDotenv(static::$projectRoot);
+        if (!static::$dotenvLoaded) {
+            throw new \RuntimeException('Dotenv configs are not loaded. Failed to get value for key [' . $key . ']');
         }
-        $this->config = new Config($file);
+
+        $value = getenv($key);
+        if (false === $value) {
+            return $default;
+        } else {
+            if ($value === 'true' || $value === 'TRUE') {
+                return true;
+            } elseif ($value === 'false' || $value === 'FALSE') {
+                return false;
+            } elseif (is_numeric($value)) {
+                return (1 * $value);
+            } else {
+                return $value;
+            }
+        }
     }
 
     /**
-     * Sets the logger class
-     */
-    protected function setLogger($path)
-    {
-        if(!is_dir($path)){
-            throw new \InvalidArgumentException('Log path not found for [' . $path . ']');
-        }
-        $this->logger = new Logger(
-            $path,
-            $this->config->get('log_level', Logger::WARNING),
-            $this->config->get('timezone')
-        );
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /**
-     * @param string $file
      * @return \a15lam\Workspace\Utility\Config
      */
-    public static function config($file = null)
+    public static function config()
     {
-        $config = [];
-        if(!empty($file)){
-            $config['config_file'] = $file;
-        }
-        $ws = new static($config);
-        return $ws->getConfig();
+        $configFile = static::$projectRoot . static::$configFile;
+
+        return new Config($configFile);
     }
 
     /**
-     * @param string $path
-     * @param string $configFile
      * @return \a15lam\Workspace\Utility\Logger
      */
-    public static function log($path = null, $configFile = null)
+    public static function log()
     {
-        $config = [];
-        if(!empty($configFile)){
-            $config['config_file'] = $configFile;
+        $config = static::config();
+
+        $path = static::$projectRoot . $config->get('log_path');
+        if (empty($path)) {
+            throw new \RuntimeException('No log_path is defined in configuration.');
         }
-        if(!empty($path)){
-            $config['log_path'] = $path;
-        }
-        $ws = new static($config);
-        return $ws->getLogger();
+        $level = $config->get('log_level', Logger::WARNING);
+        $timezone = $config->get('timezone', 'America/New_York');
+        $debug = $config->get('debug', false);
+
+        return new Logger($path, $level, $timezone, $debug);
     }
 }
