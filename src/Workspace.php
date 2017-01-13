@@ -8,12 +8,6 @@ use Dotenv\Dotenv;
 
 class Workspace
 {
-    /** @var Config|null */
-    protected $config = null;
-
-    /** @var Logger|null */
-    protected $logger = null;
-
     protected static $projectRoot = __DIR__ . '/../';
 
     protected static $configFile = 'config.php';
